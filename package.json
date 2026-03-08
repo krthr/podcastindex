@@ -1,6 +1,6 @@
 {
   "name": "podcastindex",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "TypeScript client for the PodcastIndex.org API",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -40,6 +40,9 @@
     "podcasting2.0"
   ],
   "author": "Wilson Tovar <wtovaragudelo@gmail.com>",
+  "repository": {
+    "url": "https://github.com/krthr/podcastindex"
+  },
   "license": "MIT",
   "dependencies": {
     "zod": "^4.3.6"
