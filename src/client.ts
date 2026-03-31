@@ -1,6 +1,6 @@
 import { AuthProvider } from "./auth.js";
 import { HttpClient } from "./http.js";
-import type { PodcastIndexConfig } from "./types.js";
+import type { DebugOptions, PodcastIndexConfig } from "./types.js";
 import {
   SearchResource,
   PodcastsResource,
@@ -33,10 +33,25 @@ export class PodcastIndex {
         ? new AuthProvider({ key: config.key, secret: config.secret })
         : undefined;
 
+    // Resolve debug options
+    const debugOpts = resolveDebugOptions(config.debug);
+    const debugLogger = debugOpts?.logger;
+
+    if (auth && debugOpts?.auth !== false && debugLogger) {
+      auth.setDebugLogger(debugLogger);
+    }
+
     const http = new HttpClient({
       baseUrl: config.baseUrl ?? DEFAULT_BASE_URL,
       auth,
       userAgent: config.userAgent ?? DEFAULT_USER_AGENT,
+      debug: debugLogger
+        ? {
+            request: debugOpts?.request,
+            response: debugOpts?.response,
+            logger: debugLogger,
+          }
+        : undefined,
     });
 
     this.search = new SearchResource(http);
@@ -49,4 +64,19 @@ export class PodcastIndex {
     this.hub = new HubResource(http);
     this.add = new AddResource(http);
   }
+}
+
+function resolveDebugOptions(
+  debug: boolean | DebugOptions | undefined,
+): (DebugOptions & { logger: NonNullable<DebugOptions["logger"]> }) | undefined {
+  if (!debug) return undefined;
+  if (debug === true) {
+    return { request: true, response: true, auth: true, logger: console.error };
+  }
+  return {
+    request: debug.request ?? true,
+    response: debug.response ?? true,
+    auth: debug.auth ?? true,
+    logger: debug.logger ?? console.error,
+  };
 }

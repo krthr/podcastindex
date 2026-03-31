@@ -157,9 +157,22 @@ export type AddBatchResponse = z.infer<typeof addBatchResponseSchema>;
 
 // --- Config ---
 
+export interface DebugOptions {
+  /** Log outgoing request details (URL, headers, params). Default: true when debug is enabled. */
+  request?: boolean;
+  /** Log raw response details (status, headers, body). Default: true when debug is enabled. */
+  response?: boolean;
+  /** Log auth header generation (key, timestamp, hash). Default: true when debug is enabled. */
+  auth?: boolean;
+  /** Custom log function. Defaults to console.error. */
+  logger?: (message: string, ...args: unknown[]) => void;
+}
+
 export interface PodcastIndexConfig {
   key?: string;
   secret?: string;
   baseUrl?: string;
   userAgent?: string;
+  /** Enable debug logging. Pass `true` for all debug output, or a DebugOptions object for fine-grained control. */
+  debug?: boolean | DebugOptions;
 }
