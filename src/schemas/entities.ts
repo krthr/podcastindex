@@ -150,7 +150,10 @@ export const statsSchema = z
   .object({
     feedCountTotal: z.number(),
     episodeCountTotal: z.number(),
-    feedsWithNewEpisodes: z.number(),
+    feedsWithNewEpisodes3days: z.number().optional(),
+    feedsWithNewEpisodes10days: z.number().optional(),
+    feedsWithNewEpisodes30days: z.number().optional(),
+    feedsWithNewEpisodes90days: z.number().optional(),
     feedsWithValueBlocks: z.number().optional(),
   })
   .passthrough();

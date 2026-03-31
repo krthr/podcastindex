@@ -56,7 +56,20 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("All auth tests passed!");
+  console.log("=== Testing podcast lookup by RSS URL ===\n");
+  try {
+    const podcast = await client.podcasts.byFeedUrl({
+      url: "https://feeds.theincomparable.com/batmanuniversity",
+    });
+    console.log(
+      `\n✓ Podcast by RSS URL returned "${podcast.feed.title}" (id: ${podcast.feed.id})\n`,
+    );
+  } catch (err) {
+    console.error("\n✗ Podcast by RSS URL failed:", err);
+    process.exit(1);
+  }
+
+  console.log("All integration tests passed!");
 }
 
 main();
