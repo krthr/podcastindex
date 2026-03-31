@@ -1,6 +1,6 @@
 {
   "name": "podcastindex",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "TypeScript client for the PodcastIndex.org API",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -27,6 +27,7 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
+    "test:integration": "tsx tests/debug-auth.integration.ts",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "docs": "typedoc",
@@ -51,6 +52,7 @@
   "devDependencies": {
     "@types/node": "^25.3.5",
     "tsup": "^8.0.0",
+    "tsx": "^4.21.0",
     "typedoc": "^0.28.17",
     "typescript": "^5.7.0",
     "vitest": "^4.0.18"

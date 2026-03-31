@@ -1,11 +1,16 @@
 import type { ZodSchema } from "zod";
-import type { AuthProvider } from "./auth.js";
+import type { AuthProvider, DebugLogger } from "./auth.js";
 import { PodcastIndexError } from "./errors.js";
 
 export interface HttpClientConfig {
   baseUrl: string;
   auth?: AuthProvider;
   userAgent: string;
+  debug?: {
+    request?: boolean;
+    response?: boolean;
+    logger: DebugLogger;
+  };
 }
 
 export interface RequestOptions {
@@ -19,6 +24,7 @@ export class HttpClient {
 
   async request<T>(options: RequestOptions, schema: ZodSchema<T>): Promise<T> {
     const { path, params, auth = true } = options;
+    const debug = this.config.debug;
 
     if (auth && !this.config.auth) {
       throw new PodcastIndexError(
@@ -43,6 +49,14 @@ export class HttpClient {
       Object.assign(headers, this.config.auth.getHeaders());
     }
 
+    if (debug?.request !== false && debug?.logger) {
+      debug.logger("[request]", {
+        method: "GET",
+        url: url.toString(),
+        headers: sanitizeHeaders(headers),
+      });
+    }
+
     const response = await fetch(url.toString(), { headers });
 
     if (!response.ok) {
@@ -50,10 +64,22 @@ export class HttpClient {
       try {
         errorBody = (await response.json()) as Record<string, unknown>;
       } catch {
+        if (debug?.response !== false && debug?.logger) {
+          debug.logger("[response] error (no JSON body)", {
+            status: response.status,
+            statusText: response.statusText,
+          });
+        }
         throw new PodcastIndexError(
           `HTTP ${response.status}: ${response.statusText}`,
           response.status,
         );
+      }
+      if (debug?.response !== false && debug?.logger) {
+        debug.logger("[response] error", {
+          status: response.status,
+          body: errorBody,
+        });
       }
       throw new PodcastIndexError(
         (errorBody?.description as string) ?? `HTTP ${response.status}`,
@@ -64,6 +90,25 @@ export class HttpClient {
     }
 
     const json: unknown = await response.json();
+
+    if (debug?.response !== false && debug?.logger) {
+      debug.logger("[response] success", {
+        status: response.status,
+        body: json,
+      });
+    }
+
     return schema.parse(json);
   }
+}
+
+function sanitizeHeaders(
+  headers: Record<string, string>,
+): Record<string, string> {
+  const sanitized = { ...headers };
+  if (sanitized["Authorization"]) {
+    sanitized["Authorization"] =
+      sanitized["Authorization"].slice(0, 8) + "...";
+  }
+  return sanitized;
 }
