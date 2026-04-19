@@ -27,7 +27,8 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
-    "test:integration": "tsx tests/debug-auth.integration.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:integration:watch": "vitest --config vitest.integration.config.ts",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "docs": "typedoc",
